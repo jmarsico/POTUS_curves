@@ -1,0 +1,50 @@
+<positions>
+    <element name="Blue">
+        <x>0.000000000</x>
+        <y>116.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Colors">
+        <x>0.000000000</x>
+        <y>372.000000000</y>
+        <width>1024.000000000</width>
+        <height>20.000000000</height>
+    </element>
+    <element name="Deep Blue">
+        <x>0.000000000</x>
+        <y>52.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Deep Red">
+        <x>0.000000000</x>
+        <y>274.000000000</y>
+        <width>1024.000000000</width>
+        <height>114.000000000</height>
+    </element>
+    <element name="Infra Red">
+        <x>0.000000000</x>
+        <y>412.000000000</y>
+        <width>1024.000000000</width>
+        <height>65.000000000</height>
+    </element>
+    <element name="Red">
+        <x>0.000000000</x>
+        <y>180.000000000</y>
+        <width>1024.000000000</width>
+        <height>70.000000000</height>
+    </element>
+    <element name="Rotate X">
+        <x>0.000000000</x>
+        <y>52.000000000</y>
+        <width>1024.000000000</width>
+        <height>250.000000000</height>
+    </element>
+    <element name="Rotate Y">
+        <x>0.000000000</x>
+        <y>326.000000000</y>
+        <width>1024.000000000</width>
+        <height>310.000000000</height>
+    </element>
+</positions>
