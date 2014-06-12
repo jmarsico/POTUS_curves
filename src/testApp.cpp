@@ -37,115 +37,214 @@ void testApp::setup(){
 	ofSetFrameRate(60);
 	ofSetVerticalSync(true);
     ofEnableSmoothing();
-	
-	glEnable(GL_DEPTH_TEST);
-	ofEnableLighting();
-	
-	light.setPosition(ofGetWidth()*.5, ofGetHeight()*.25, 0);
-	light.enable();
+    ofSetLogLevel(OF_LOG_VERBOSE);
 		
     //Timeline setup and playback details
     ofxTimeline::removeCocoaMenusFromGlut("CurvesColorsDemo");
     
-	timeline.setup();
-    timeline.setFrameRate(30);
-	//timeline.setDurationInFrames(90);
-    timeline.setDurationInSeconds(15);
-	timeline.setLoopType(OF_LOOP_NORMAL);
+    //this is the gui that will select which timeline to run
+    buttonGui = new ofxUICanvas(10, ofGetHeight() - 100);
     
-	//each call to "add keyframes" add's another track to the timeline
-	timeline.addCurves("Deep Blue", ofRange(0, 255));
-    timeline.addCurves("Blue", ofRange(0,255));
-    timeline.addCurves("Red", ofRange(0,255));
-	timeline.addCurves("Deep Red", ofRange(0, 255));
-    timeline.addCurves("Infra Red", ofRange(0, 255));
+    //this gui will take the name of the new timeline
+    gui2 = new ofxUICanvas(ofGetWidth()/2, ofGetHeight()-80, 100, 80);
+    gui2->addLabel("Recipe Name", OFX_UI_FONT_MEDIUM);
+	gui2->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
+    gui2->addTextInput("Recipe", "");
+    gui2->getWidget("Recipe")->setTriggerType(OFX_UI_TEXTINPUT_ON_ENTER);
+    gui2->autoSizeToFitWidgets();
+    gui2->disable();
     
-
-
-    //setting framebased to true results in the timeline never skipping frames
-    //and also speeding up with the 
-    //try setting this to true and see the difference
-    timeline.setFrameBased(false);
-	
+    //need to add a listener for the gui
+    ofAddListener(gui2->newGUIEvent, this, &testApp::guiEvent);
+    ofAddListener(buttonGui->newGUIEvent, this, &testApp::guiEvent);
+    
+    
+    //this is the rectangle/button that adds a new timeline
+    newButton.set(10, ofGetHeight() - 200, 200, 30);
+    
+    //index to keep track of which timeline to show/run
+    currentTimelineIndex = 0;
+    
 }
+
+
 
 //--------------------------------------------------------------
 void testApp::update(){
+    if(bShowText)
+    {
+        gui2->enable();
+        
+    }
+    else
+    {
+        gui2->disable();
+    }
 
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
 	
-	int boxSize = 100;
-    ofBackground(.15*255);
-	ofPushMatrix();
+	int boxSize = 150;
+    //ofBackground(.15*255);
 	
-        //translate to the center of the screen
-        ofTranslate(ofGetWidth()*.5, ofGetHeight()*.66, 40);
+    if(timelines.size() > 0)
+    {
+        ofPushMatrix();
         
-        ofPushMatrix();
-    ofPushStyle();
-            ofTranslate(-boxSize*2.5, 0);
-            ofFill();
-            ofSetColor(9, 21, 110, timeline.getValue("Deep Blue"));
-            ofRect(0, 0, boxSize,boxSize);
-            ofNoFill();
-            ofSetColor(200);
-            ofDrawBitmapString("Deep Blue", 5,12);
-            ofRect(0,0,boxSize,boxSize);
-    ofPopStyle();
-        ofPopMatrix();
-        ofPushMatrix();
-            ofTranslate(-boxSize*1.5, 0);
-            ofFill();
-            ofSetColor(28, 45, 170, timeline.getValue("Blue"));
-            ofRect(0, 0, boxSize,boxSize);
-            ofNoFill();
-            ofSetColor(200);
-            ofDrawBitmapString("Blue", 5,12);
-            ofRect(0,0,boxSize,boxSize);
-        ofPopMatrix();
-        ofPushMatrix();
-            ofTranslate(-boxSize*0.5, 0);
-            ofFill();
-            ofSetColor(241, 10, 26, timeline.getValue("Red"));
-            ofRect(0, 0, boxSize,boxSize);
-            ofNoFill();
-            ofSetColor(200);
-            ofDrawBitmapString("Red", 5,12);
-            ofRect(0,0,boxSize,boxSize);
+            //translate to the center of the screen
+            ofTranslate(ofGetWidth()*.5, ofGetHeight()*.66, 40);
+            
+            ofPushMatrix();
+                ofTranslate(-boxSize*2.5, 0);
+                ofFill();
+                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep Blue" + ofToString(currentTimelineIndex)));
+                ofRect(0, 0, boxSize,boxSize);
+                ofNoFill();
+                ofSetColor(200);
+                ofDrawBitmapString("Deep Blue", 5,12);
+                ofRect(0,0,boxSize,boxSize);
             ofPopMatrix();
-        ofPushMatrix();
-            ofTranslate(boxSize*0.5, 0);
-            ofFill();
-            ofSetColor(151, 0, 38, timeline.getValue("Deep Red"));
-            ofRect(0, 0, boxSize,boxSize);
-            ofNoFill();
-            ofSetColor(200);
-            ofDrawBitmapString("Deep Red", 5,12);
-            ofRect(0,0,boxSize,boxSize);
+            ofPushMatrix();
+                ofTranslate(-boxSize*1.5, 0);
+                ofFill();
+                ofSetColor(28, 45, 170, timelines[currentTimelineIndex]->getValue("Blue" + ofToString(currentTimelineIndex)));
+                ofRect(0, 0, boxSize,boxSize);
+                ofNoFill();
+                ofSetColor(200);
+                ofDrawBitmapString("Blue", 5,12);
+                ofRect(0,0,boxSize,boxSize);
+            ofPopMatrix();
+            ofPushMatrix();
+                ofTranslate(-boxSize*0.5, 0);
+                ofFill();
+                ofSetColor(241, 10, 26, timelines[currentTimelineIndex]->getValue("Red" + ofToString(currentTimelineIndex)));
+                ofRect(0, 0, boxSize,boxSize);
+                ofNoFill();
+                ofSetColor(200);
+                ofDrawBitmapString("Red", 5,12);
+                ofRect(0,0,boxSize,boxSize);
+                ofPopMatrix();
+            ofPushMatrix();
+                ofTranslate(boxSize*0.5, 0);
+                ofFill();
+                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep Red" + ofToString(currentTimelineIndex)));
+                ofRect(0, 0, boxSize,boxSize);
+                ofNoFill();
+                ofSetColor(200);
+                ofDrawBitmapString("Deep Red", 5,12);
+                ofRect(0,0,boxSize,boxSize);
+            ofPopMatrix();
+            ofPushMatrix();
+                ofTranslate(boxSize*1.5, 0);
+                ofFill();
+                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra Red" + ofToString(currentTimelineIndex)));
+                ofRect(0, 0, boxSize,boxSize);
+                ofNoFill();
+                ofSetColor(200);
+                ofDrawBitmapString("Infra Red", 5,12);
+                ofRect(0,0,boxSize,boxSize);
+            ofPopMatrix();
+        
         ofPopMatrix();
-        ofPushMatrix();
-            ofTranslate(boxSize*1.5, 0);
-            ofFill();
-            ofSetColor(100, 15, 21, timeline.getValue("Infra Red"));
-            ofRect(0, 0, boxSize,boxSize);
-            ofNoFill();
-            ofSetColor(200);
-            ofDrawBitmapString("Infra Red", 5,12);
-            ofRect(0,0,boxSize,boxSize);
-        ofPopMatrix();
+
+        timelines[currentTimelineIndex]->draw();
+    }
     
+    ofFill();
+    ofSetColor(255, 0, 0);
+    ofRect(newButton);
+
+ 
+}
+
+
+//--------------------------------------------------------------
+void testApp::setupNewTimeline(){
+  	ofLogVerbose() << "setting up new timeline";
+    ofxTimeline* t = new ofxTimeline();
     
-        ofPopMatrix();
-    ofRect(0, 0, 100, 100);
-	
-	timeline.draw();
+    t->setup();
+    t->setFrameRate(30);
+	//timeline.setDurationInFrames(90);
+    t->setDurationInSeconds(15);
+	t->setLoopType(OF_LOOP_NORMAL);
+    
+	//each call to "add keyframes" add's another track to the timeline
+	t->addCurves("Deep Blue" + ofToString(timelines.size()), ofRange(0, 255));
+    t->addCurves("Blue" + ofToString(timelines.size()), ofRange(0,255));
+    t->addCurves("Red" + ofToString(timelines.size()), ofRange(0,255));
+	t->addCurves("Deep Red" + ofToString(timelines.size()), ofRange(0, 255));
+    t->addCurves("Infra Red" + ofToString(timelines.size()), ofRange(0, 255));
+    t->clear();
+    t->setFrameBased(false);
+    timelines.push_back(t);
+
+    //set the current timeline to the newest timeline
+    currentTimelineIndex = timelines.size()-1;
+    
+    //add a new button with the new filename and new ID
+    buttonGui->addButton(fileName, false)->setID(timelines.size()-1);
+    
+    //tell me the ID
+    ofLogVerbose() << "new ID: " << buttonGui->getWidget(fileName)->getID();
+    
+    //resize gui canvas
+    buttonGui->autoSizeToFitWidgets();
+    
+    //re-position the gui canvas
+    buttonGui->setPosition(10, ofGetHeight() - buttonGui->getRect()->getHeight());
+    
+    //tell me the number of timelines we have
+    ofLogVerbose() << "setup new timeline complete, number of timelines: " << timelines.size();
 }
 
 //--------------------------------------------------------------
+void testApp::guiEvent(ofxUIEventArgs &e)
+{
+    
+    if(e.getName() == "Recipe")
+    {
+        ofxUITextInput *textinput = (ofxUITextInput *) e.widget;
+        fileName = textinput->getTextString();
+        if(fileName != "")
+        {
+            ofLog() << "text input: " << fileName;
+            setupNewTimeline();
+            bShowText = false;
+            
+        }
+        
+    }
+    
+    
+    //if the event is a button:
+    if(e.getKind() == OFX_UI_WIDGET_BUTTON)
+    {
+        
+        currentTimelineIndex = buttonGui->getWidget(e.getName())->getID();
+        ofLogVerbose() << "gui button clicked: " << e.getName() << " ID: " << currentTimelineIndex;
+        
+        
+    }
+    
+    
+}
+
+
+//--------------------------------------------------------------
+void testApp::exit()
+{
+    delete gui2;
+}
+
+
+
+
+//--------------------------------------------------------------
 void testApp::keyPressed(int key){
+    
 
 }
 
@@ -165,7 +264,16 @@ void testApp::mouseDragged(int x, int y, int button){
 }
 
 //--------------------------------------------------------------
-void testApp::mousePressed(int x, int y, int button){
+void testApp::mousePressed(int x, int y, int _button){
+    ofPoint mousePoint;
+    mousePoint.set(x, y);
+    if(newButton.inside(mousePoint))
+    {
+        ofLog() << "newButton Pressed";
+        bShowText = !bShowText;
+        
+        
+    }
 
 }
 

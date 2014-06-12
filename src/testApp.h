@@ -33,6 +33,7 @@
 
 #include "ofMain.h"
 #include "ofxTimeline.h"
+#include "ofxUI.h"
 
 class testApp : public ofBaseApp{
 
@@ -50,9 +51,20 @@ class testApp : public ofBaseApp{
 	void windowResized(int w, int h);
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
-	
-	ofLight light;
-	
-	ofxTimeline timeline;
+    void exit();
+    void guiEvent(ofxUIEventArgs &e);
+    
+    void setupNewTimeline();
+		
+	vector <ofxTimeline*> timelines;
+    int currentTimelineIndex;
+    ofxUICanvas *buttonGui, *gui2;
+    
+    bool bShowText;
+    string fileName;
+    
+    ofRectangle newButton;
+    
+    ofTrueTypeFont type;
     
 };

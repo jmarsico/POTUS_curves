@@ -5,7 +5,7 @@
         <width>1024.000000000</width>
         <height>40.000000000</height>
     </element>
-    <element name="Blue0">
+    <element name="Blue1">
         <x>0.000000000</x>
         <y>116.000000000</y>
         <width>1024.000000000</width>
@@ -17,7 +17,7 @@
         <width>1024.000000000</width>
         <height>40.000000000</height>
     </element>
-    <element name="Deep Blue0">
+    <element name="Deep Blue1">
         <x>0.000000000</x>
         <y>52.000000000</y>
         <width>1024.000000000</width>
@@ -29,7 +29,7 @@
         <width>1024.000000000</width>
         <height>40.000000000</height>
     </element>
-    <element name="Deep Red0">
+    <element name="Deep Red1">
         <x>0.000000000</x>
         <y>244.000000000</y>
         <width>1024.000000000</width>
@@ -41,7 +41,7 @@
         <width>1024.000000000</width>
         <height>40.000000000</height>
     </element>
-    <element name="Infra Red0">
+    <element name="Infra Red1">
         <x>0.000000000</x>
         <y>322.000000000</y>
         <width>1024.000000000</width>
@@ -53,7 +53,7 @@
         <width>1024.000000000</width>
         <height>40.000000000</height>
     </element>
-    <element name="Red0">
+    <element name="Red1">
         <x>0.000000000</x>
         <y>180.000000000</y>
         <width>1024.000000000</width>

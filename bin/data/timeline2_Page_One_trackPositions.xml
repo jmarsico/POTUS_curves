@@ -1,0 +1,32 @@
+<positions>
+    <element name="Blue2">
+        <x>0.000000000</x>
+        <y>116.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Deep Blue2">
+        <x>0.000000000</x>
+        <y>52.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Deep Red2">
+        <x>0.000000000</x>
+        <y>244.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Infra Red2">
+        <x>0.000000000</x>
+        <y>308.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+    <element name="Red2">
+        <x>0.000000000</x>
+        <y>180.000000000</y>
+        <width>1024.000000000</width>
+        <height>40.000000000</height>
+    </element>
+</positions>
