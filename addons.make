@@ -2,6 +2,7 @@ ofxMSATimer
 ofxRange
 ofxTextInputField
 ofxTimecode
-ofxTimeline
+ofxTimeline_small
 ofxTween
 ofxXmlSettings
+ofxUI_small
