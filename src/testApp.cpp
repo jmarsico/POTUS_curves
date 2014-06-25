@@ -51,7 +51,7 @@ void testApp::setup(){
 	gui2->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
     gui2->addTextInput("Recipe", "");
     gui2->getWidget("Recipe")->setTriggerType(OFX_UI_TEXTINPUT_ON_ENTER);
-    gui2->autoSizeToFitWidgets();
+    //gui2->autoSizeToFitWidgets();
     gui2->disable();
     
     //need to add a listener for the gui
@@ -80,7 +80,18 @@ void testApp::update(){
     {
         gui2->disable();
     }
-
+    
+    int x = 10;
+    int guiHeight = buttonGui->getRect()->getHeight();
+    int buttHeight = 30;
+    int guiWidth = buttonGui->getRect()->getWidth();
+    
+    //change size and position of rectbutton
+    if( guiHeight > 2)
+    {
+        newButton.set(x, ofGetHeight() - guiHeight - buttHeight, guiWidth, buttHeight);
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -99,7 +110,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*2.5, 0);
                 ofFill();
-                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep Blue" + ofToString(currentTimelineIndex)));
+                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep_Blue" + ofToString(currentTimelineIndex)));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -129,7 +140,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*0.5, 0);
                 ofFill();
-                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep Red" + ofToString(currentTimelineIndex)));
+                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep_Red" + ofToString(currentTimelineIndex)));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -139,7 +150,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*1.5, 0);
                 ofFill();
-                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra Red" + ofToString(currentTimelineIndex)));
+                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra_Red" + ofToString(currentTimelineIndex)));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -148,6 +159,7 @@ void testApp::draw(){
             ofPopMatrix();
         
         ofPopMatrix();
+        
 
         timelines[currentTimelineIndex]->draw();
     }
@@ -165,24 +177,35 @@ void testApp::setupNewTimeline(){
   	ofLogVerbose() << "setting up new timeline";
     ofxTimeline* t = new ofxTimeline();
     
+    t->setWorkingFolder("timeline");
     t->setup();
     t->setFrameRate(30);
-	//timeline.setDurationInFrames(90);
     t->setDurationInSeconds(15);
 	t->setLoopType(OF_LOOP_NORMAL);
     
-	//each call to "add keyframes" add's another track to the timeline
-	t->addCurves("Deep Blue" + ofToString(timelines.size()), ofRange(0, 255));
+	t->addCurves("Deep_Blue" + ofToString(timelines.size()), ofRange(0, 255));
     t->addCurves("Blue" + ofToString(timelines.size()), ofRange(0,255));
     t->addCurves("Red" + ofToString(timelines.size()), ofRange(0,255));
-	t->addCurves("Deep Red" + ofToString(timelines.size()), ofRange(0, 255));
-    t->addCurves("Infra Red" + ofToString(timelines.size()), ofRange(0, 255));
-    t->clear();
+	t->addCurves("Deep_Red" + ofToString(timelines.size()), ofRange(0, 255));
+    t->addCurves("Infra_Red" + ofToString(timelines.size()), ofRange(0, 255));
     t->setFrameBased(false);
+    t->setAutosave(false);
     timelines.push_back(t);
-
+    
     //set the current timeline to the newest timeline
     currentTimelineIndex = timelines.size()-1;
+    
+    //we want to save the first timeline
+    if(timelines.size() == 1)
+    {
+        timelines[0]->saveTracksToFolder("timeline");
+    }
+    
+    showOneTimeline(currentTimelineIndex);
+    syncNewTimeline(currentTimelineIndex);
+
+    
+    
     
     //add a new button with the new filename and new ID
     buttonGui->addButton(fileName, false)->setID(timelines.size()-1);
@@ -200,6 +223,22 @@ void testApp::setupNewTimeline(){
     ofLogVerbose() << "setup new timeline complete, number of timelines: " << timelines.size();
 }
 
+
+//--------------------------------------------------------------
+void testApp::syncNewTimeline(int timelineNum){
+    
+    file.copyFromTo("timeline/timeline0_Deep_Blue", "timeline/timeline"+ofToString(timelineNum)+"_Deep_Blue.xml", true, true);
+    file.copyFromTo("timeline/timeline0_Blue", "timeline/timeline"+ofToString(timelineNum)+"_Blue.xml", true, true);
+    file.copyFromTo("timeline/timeline0_Red", "timeline/timeline"+ofToString(timelineNum)+"_Red.xml", true, true);
+    file.copyFromTo("timeline/timeline0_Deep_Red", "timeline/timeline"+ofToString(timelineNum)+"_Deep_Red.xml", true, true);
+    file.copyFromTo("timeline/timeline0_Infra_Red", "timeline/timeline"+ofToString(timelineNum)+"_Infra_Red.xml", true, true);
+    
+    timelines[timelineNum]->loadTracksFromFolder("timeline/");
+    
+}
+
+
+
 //--------------------------------------------------------------
 void testApp::guiEvent(ofxUIEventArgs &e)
 {
@@ -213,24 +252,33 @@ void testApp::guiEvent(ofxUIEventArgs &e)
             ofLog() << "text input: " << fileName;
             setupNewTimeline();
             bShowText = false;
-            
         }
-        
     }
-    
     
     //if the event is a button:
     if(e.getKind() == OFX_UI_WIDGET_BUTTON)
     {
-        
         currentTimelineIndex = buttonGui->getWidget(e.getName())->getID();
+        showOneTimeline(currentTimelineIndex);
         ofLogVerbose() << "gui button clicked: " << e.getName() << " ID: " << currentTimelineIndex;
-        
-        
     }
-    
-    
+  
 }
+
+//--------------------------------------------------------------
+void testApp::showOneTimeline(int timelineNum){
+    //hide all other timelines
+    for(int i = 0; i < timelines.size(); i++)
+    {
+        if(i != timelineNum)
+        {
+            timelines[i]->hide();
+        }
+    }
+    //show and draw current timeline
+    timelines[timelineNum]->show();
+}
+
 
 
 //--------------------------------------------------------------
@@ -271,8 +319,6 @@ void testApp::mousePressed(int x, int y, int _button){
     {
         ofLog() << "newButton Pressed";
         bShowText = !bShowText;
-        
-        
     }
 
 }

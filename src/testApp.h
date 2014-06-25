@@ -55,6 +55,8 @@ class testApp : public ofBaseApp{
     void guiEvent(ofxUIEventArgs &e);
     
     void setupNewTimeline();
+    void syncNewTimeline(int timelineNum);
+    void showOneTimeline(int timelineNum);
 		
 	vector <ofxTimeline*> timelines;
     int currentTimelineIndex;
@@ -63,8 +65,11 @@ class testApp : public ofBaseApp{
     bool bShowText;
     string fileName;
     
-    ofRectangle newButton;
+    ofFile file;
     
+    ofRectangle newButton;
     ofTrueTypeFont type;
+    
+    //ofxUDPManager udpConnection;
     
 };
