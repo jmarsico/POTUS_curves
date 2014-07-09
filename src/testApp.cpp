@@ -29,6 +29,14 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/*
+ TODO:
+ 
+
+ - two modes: preview and realtime
+ 
+ */
+
 #include "testApp.h"
 
 //--------------------------------------------------------------
@@ -64,6 +72,44 @@ void testApp::setup(){
     
     //index to keep track of which timeline to show/run
     currentTimelineIndex = 0;
+    currentTimelineName = "";
+    currentTime = 0;
+    currentTimeString = "";
+    
+    
+    ////////////////// FONTS /////////////////////////
+    
+    
+    ofTrueTypeFont::setGlobalDpi(72);
+    
+	type_bebas.loadFont("BEBAS___.ttf", 90, true, true);
+	type_bebas.setLineHeight(18.0f);
+	type_bebas.setLetterSpacing(1.037);
+    
+    for(int i = 0; i < 4; i++)
+    {
+        switch (i) {
+            case 0:
+                fileName = "one";
+                break;
+                
+            case 1:
+                fileName = "two";
+                break;
+            
+            case 2:
+                fileName = "three";
+                break;
+                
+            case 3:
+                fileName = "four";
+                break;
+                
+            default:
+                break;
+        }
+        setupNewTimeline();
+    }
     
 }
 
@@ -92,7 +138,16 @@ void testApp::update(){
         newButton.set(x, ofGetHeight() - guiHeight - buttHeight, guiWidth, buttHeight);
     }
     
+    //get the currentTime
+    if(timelines.size() > 0)
+    {
+        currentTime = floorf(timelines[currentTimelineIndex]->getCurrentTime() * 100) / 100;
+        currentTimeString = timelines[currentTimelineIndex]->getCurrentTimecode();
+        
+        
+    }
 }
+
 
 //--------------------------------------------------------------
 void testApp::draw(){
@@ -102,6 +157,7 @@ void testApp::draw(){
 	
     if(timelines.size() > 0)
     {
+        /*
         ofPushMatrix();
         
             //translate to the center of the screen
@@ -110,7 +166,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*2.5, 0);
                 ofFill();
-                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep_Blue" + ofToString(currentTimelineIndex)));
+                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep_Blue"));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -120,7 +176,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*1.5, 0);
                 ofFill();
-                ofSetColor(28, 45, 170, timelines[currentTimelineIndex]->getValue("Blue" + ofToString(currentTimelineIndex)));
+                ofSetColor(28, 45, 170, timelines[currentTimelineIndex]->getValue("Blue" ));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -130,7 +186,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*0.5, 0);
                 ofFill();
-                ofSetColor(241, 10, 26, timelines[currentTimelineIndex]->getValue("Red" + ofToString(currentTimelineIndex)));
+                ofSetColor(241, 10, 26, timelines[currentTimelineIndex]->getValue("Red"));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -140,7 +196,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*0.5, 0);
                 ofFill();
-                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep_Red" + ofToString(currentTimelineIndex)));
+                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep_Red"));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -150,7 +206,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*1.5, 0);
                 ofFill();
-                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra_Red" + ofToString(currentTimelineIndex)));
+                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra_Red"));
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -159,15 +215,28 @@ void testApp::draw(){
             ofPopMatrix();
         
         ofPopMatrix();
-        
-
+*/
         timelines[currentTimelineIndex]->draw();
     }
     
+    
+    //draw the pagename
+    ofSetColor(0);
+    
+    stringstream displayString;
+    if(timelines.size() > 0)
+    {
+        displayString << currentTimelineName << " | " << currentTimeString << endl;
+    }
+    
+    int stringW = type_bebas.stringWidth(displayString.str());
+    int stringH = type_bebas.stringHeight(displayString.str());
+    type_bebas.drawString(displayString.str(), ofGetWidth()/2-stringW/2,
+                          ofGetHeight()/2-stringH/2);
+
     ofFill();
     ofSetColor(255, 0, 0);
     ofRect(newButton);
-
  
 }
 
@@ -175,69 +244,44 @@ void testApp::draw(){
 //--------------------------------------------------------------
 void testApp::setupNewTimeline(){
   	ofLogVerbose() << "setting up new timeline";
+    currentTimelineName = fileName;
+    
     ofxTimeline* t = new ofxTimeline();
     
-    t->setWorkingFolder("timeline");
     t->setup();
     t->setFrameRate(30);
-    t->setDurationInSeconds(15);
+    t->setDurationInSeconds(24*60*60);
 	t->setLoopType(OF_LOOP_NORMAL);
     
-	t->addCurves("Deep_Blue" + ofToString(timelines.size()), ofRange(0, 255));
-    t->addCurves("Blue" + ofToString(timelines.size()), ofRange(0,255));
-    t->addCurves("Red" + ofToString(timelines.size()), ofRange(0,255));
-	t->addCurves("Deep_Red" + ofToString(timelines.size()), ofRange(0, 255));
-    t->addCurves("Infra_Red" + ofToString(timelines.size()), ofRange(0, 255));
+    
+	t->addCurves("Deep_Blue", ofRange(0, 255));
+    t->addCurves("Blue", ofRange(0,255));
+    t->addCurves("Red", ofRange(0,255));
+	t->addCurves("Deep_Red", ofRange(0, 255));
+    t->addCurves("Infra_Red", ofRange(0, 255));
     t->setFrameBased(false);
-    t->setAutosave(false);
+    //t->setAutosave(false);
+    //t->setName(currentTimelineName);
     timelines.push_back(t);
     
-    //set the current timeline to the newest timeline
-    currentTimelineIndex = timelines.size()-1;
-    
-    //we want to save the first timeline
-    if(timelines.size() == 1)
-    {
-        timelines[0]->saveTracksToFolder("timeline");
-    }
-    
     showOneTimeline(currentTimelineIndex);
-    syncNewTimeline(currentTimelineIndex);
 
-    
     
     
     //add a new button with the new filename and new ID
     buttonGui->addButton(fileName, false)->setID(timelines.size()-1);
     
     //tell me the ID
-    ofLogVerbose() << "new ID: " << buttonGui->getWidget(fileName)->getID();
+    //ofLogVerbose() << "new ID: " << buttonGui->getWidget(t->getName())->getID();
     
     //resize gui canvas
     buttonGui->autoSizeToFitWidgets();
-    
     //re-position the gui canvas
     buttonGui->setPosition(10, ofGetHeight() - buttonGui->getRect()->getHeight());
     
     //tell me the number of timelines we have
     ofLogVerbose() << "setup new timeline complete, number of timelines: " << timelines.size();
 }
-
-
-//--------------------------------------------------------------
-void testApp::syncNewTimeline(int timelineNum){
-    
-    file.copyFromTo("timeline/timeline0_Deep_Blue", "timeline/timeline"+ofToString(timelineNum)+"_Deep_Blue.xml", true, true);
-    file.copyFromTo("timeline/timeline0_Blue", "timeline/timeline"+ofToString(timelineNum)+"_Blue.xml", true, true);
-    file.copyFromTo("timeline/timeline0_Red", "timeline/timeline"+ofToString(timelineNum)+"_Red.xml", true, true);
-    file.copyFromTo("timeline/timeline0_Deep_Red", "timeline/timeline"+ofToString(timelineNum)+"_Deep_Red.xml", true, true);
-    file.copyFromTo("timeline/timeline0_Infra_Red", "timeline/timeline"+ofToString(timelineNum)+"_Infra_Red.xml", true, true);
-    
-    timelines[timelineNum]->loadTracksFromFolder("timeline/");
-    
-}
-
-
 
 //--------------------------------------------------------------
 void testApp::guiEvent(ofxUIEventArgs &e)
@@ -260,7 +304,10 @@ void testApp::guiEvent(ofxUIEventArgs &e)
     {
         currentTimelineIndex = buttonGui->getWidget(e.getName())->getID();
         showOneTimeline(currentTimelineIndex);
-        ofLogVerbose() << "gui button clicked: " << e.getName() << " ID: " << currentTimelineIndex;
+        currentTimelineName = e.getName();
+        ofLogVerbose() << endl << "******************************" << endl <<
+        "gui button clicked: " << currentTimelineName << " | ID: " << currentTimelineIndex << endl ;
+        
     }
   
 }
@@ -273,6 +320,7 @@ void testApp::showOneTimeline(int timelineNum){
         if(i != timelineNum)
         {
             timelines[i]->hide();
+            timelines[i]->stop();
         }
     }
     //show and draw current timeline
@@ -280,15 +328,20 @@ void testApp::showOneTimeline(int timelineNum){
 }
 
 
-
 //--------------------------------------------------------------
-void testApp::exit()
-{
-    delete gui2;
+void testApp::saveTimelines(){
+    
+    for(int i = 0; i < timelines.size(); i++)
+    {
+        timelines[i]->saveTracksToFolder("timeline/timeline_" + timelines[i]->getName());
+    }
 }
 
 
-
+//--------------------------------------------------------------
+void testApp::exit(){
+    delete gui2;
+}
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
@@ -318,7 +371,14 @@ void testApp::mousePressed(int x, int y, int _button){
     if(newButton.inside(mousePoint))
     {
         ofLog() << "newButton Pressed";
-        bShowText = !bShowText;
+        //bShowText = !bShowText;
+        if(timelines[currentTimelineIndex]->getIsPlaying())
+        {
+            timelines[currentTimelineIndex]->stop();
+        }
+        else timelines[currentTimelineIndex]->play();
+        
+        
     }
 
 }
