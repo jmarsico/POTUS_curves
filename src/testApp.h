@@ -34,6 +34,7 @@
 #include "ofMain.h"
 #include "ofxTimeline.h"
 #include "ofxUI.h"
+#include "ofxXmlSettings.h"
 
 class testApp : public ofBaseApp{
 
@@ -57,13 +58,15 @@ class testApp : public ofBaseApp{
     void setupNewTimeline();
     void showOneTimeline(int timelineNum);
     void saveTimelines();
+    void saveCurrentTime();
+    void loadCurrentTime();
 		
 	vector <ofxTimeline*> timelines;
     int currentTimelineIndex;
     string currentTimelineName;
     ofxUICanvas *buttonGui, *gui2;
     
-    bool bShowText;
+    bool bIsPreviewMode;
     string fileName;
     
     ofFile file;
@@ -73,5 +76,9 @@ class testApp : public ofBaseApp{
     
     float currentTime;
     string currentTimeString;
+    
+    ofxXmlSettings timeXML;
+    
+    
     
 };

@@ -86,8 +86,11 @@ void testApp::setup(){
 	type_bebas.setLineHeight(18.0f);
 	type_bebas.setLetterSpacing(1.037);
     
+    
+    ////////////  setup the timelines ////////////
     for(int i = 0; i < 4; i++)
     {
+        //set the name of the timeline before setting it up
         switch (i) {
             case 0:
                 fileName = "one";
@@ -111,21 +114,15 @@ void testApp::setup(){
         setupNewTimeline();
     }
     
+    //setup XML for last time and currentTimelineIndex
+    if(timeXML.load("lastTime.xml")) ofLog() << "XML loaded successfully";
+    else ofLog() << "XML did not load, check data/ folder";
+    
+    loadCurrentTime();
 }
-
-
 
 //--------------------------------------------------------------
 void testApp::update(){
-    if(bShowText)
-    {
-        gui2->enable();
-        
-    }
-    else
-    {
-        gui2->disable();
-    }
     
     int x = 10;
     int guiHeight = buttonGui->getRect()->getHeight();
@@ -146,6 +143,8 @@ void testApp::update(){
         
         
     }
+    
+    saveCurrentTime();
 }
 
 
@@ -157,7 +156,7 @@ void testApp::draw(){
 	
     if(timelines.size() > 0)
     {
-        /*
+        
         ofPushMatrix();
         
             //translate to the center of the screen
@@ -215,7 +214,7 @@ void testApp::draw(){
             ofPopMatrix();
         
         ofPopMatrix();
-*/
+
         timelines[currentTimelineIndex]->draw();
     }
     
@@ -239,7 +238,6 @@ void testApp::draw(){
     ofRect(newButton);
  
 }
-
 
 //--------------------------------------------------------------
 void testApp::setupNewTimeline(){
@@ -284,8 +282,7 @@ void testApp::setupNewTimeline(){
 }
 
 //--------------------------------------------------------------
-void testApp::guiEvent(ofxUIEventArgs &e)
-{
+void testApp::guiEvent(ofxUIEventArgs &e){
     
     if(e.getName() == "Recipe")
     {
@@ -295,7 +292,6 @@ void testApp::guiEvent(ofxUIEventArgs &e)
         {
             ofLog() << "text input: " << fileName;
             setupNewTimeline();
-            bShowText = false;
         }
     }
     
@@ -309,7 +305,25 @@ void testApp::guiEvent(ofxUIEventArgs &e)
         "gui button clicked: " << currentTimelineName << " | ID: " << currentTimelineIndex << endl ;
         
     }
-  
+    
+    if(e.getName() == "Go To Start")
+    {
+        ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
+		if(toggle->getValue())
+        {
+            for(int i = 0; i < timelines.size(); i++)
+            {
+                timelines[i]->setDurationInSeconds(24);
+            }
+        }
+        else
+        {
+            for(int i = 0; i < timelines.size(); i++)
+            {
+                timelines[i]->setDurationInSeconds(24*60*60);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -327,7 +341,6 @@ void testApp::showOneTimeline(int timelineNum){
     timelines[timelineNum]->show();
 }
 
-
 //--------------------------------------------------------------
 void testApp::saveTimelines(){
     
@@ -335,8 +348,38 @@ void testApp::saveTimelines(){
     {
         timelines[i]->saveTracksToFolder("timeline/timeline_" + timelines[i]->getName());
     }
+    
+    ofGetSystemTime();
 }
 
+//--------------------------------------------------------------
+void testApp::saveCurrentTime(){
+    int currentTime = timelines[currentTimelineIndex]->getCurrentTime();
+    
+    timeXML.clear();
+    timeXML.setValue("time", currentTime);
+    timeXML.setValue("timelineIndex", currentTimelineIndex);
+    timeXML.setValue("isPlaying", timelines[currentTimelineIndex]->getIsPlaying());
+    timeXML.setValue("name", currentTimelineName);
+    if(!timeXML.save("lastTime.xml"))
+    {
+       ofLogVerbose() << "failing to save current settings";
+    }
+}
+
+//--------------------------------------------------------------
+void testApp::loadCurrentTime(){
+    
+    currentTimelineIndex = timeXML.getValue("timelineIndex", 0);
+    currentTimelineName = timeXML.getValue("name", "");
+    showOneTimeline(currentTimelineIndex);
+    timelines[currentTimelineIndex]->setCurrentTimeSeconds(timeXML.getValue("time", 0));
+    
+    if(timeXML.getValue("isPlaying", 0))
+    {
+        timelines[currentTimelineIndex]->play();
+    }
+}
 
 //--------------------------------------------------------------
 void testApp::exit(){
