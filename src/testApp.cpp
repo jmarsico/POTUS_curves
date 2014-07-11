@@ -29,16 +29,10 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/*
- TODO:
- 
-
- - two modes: preview and realtime
- 
- */
-
 #include "testApp.h"
 
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::setup(){
 	
@@ -47,41 +41,28 @@ void testApp::setup(){
     ofEnableSmoothing();
     ofSetLogLevel(OF_LOG_VERBOSE);
 		
-    //Timeline setup and playback details
+    //Timeline setup and playback details YOU ARE THE CUTEST
     ofxTimeline::removeCocoaMenusFromGlut("CurvesColorsDemo");
     
     //this is the gui that will select which timeline to run
     buttonGui = new ofxUICanvas(10, ofGetHeight() - 100);
     
-    //this gui will take the name of the new timeline
-    gui2 = new ofxUICanvas(ofGetWidth()/2, ofGetHeight()-80, 100, 80);
-    gui2->addLabel("Recipe Name", OFX_UI_FONT_MEDIUM);
-	gui2->setWidgetFontSize(OFX_UI_FONT_MEDIUM);
-    gui2->addTextInput("Recipe", "");
-    gui2->getWidget("Recipe")->setTriggerType(OFX_UI_TEXTINPUT_ON_ENTER);
-    //gui2->autoSizeToFitWidgets();
-    gui2->disable();
-    
     //need to add a listener for the gui
-    ofAddListener(gui2->newGUIEvent, this, &testApp::guiEvent);
     ofAddListener(buttonGui->newGUIEvent, this, &testApp::guiEvent);
     
     
     //this is the rectangle/button that adds a new timeline
     newButton.set(10, ofGetHeight() - 200, 200, 30);
     
+    
     //index to keep track of which timeline to show/run
     currentTimelineIndex = 0;
     currentTimelineName = "";
-    currentTime = 0;
     currentTimeString = "";
     
     
     ////////////////// FONTS /////////////////////////
-    
-    
     ofTrueTypeFont::setGlobalDpi(72);
-    
 	type_bebas.loadFont("BEBAS___.ttf", 90, true, true);
 	type_bebas.setLineHeight(18.0f);
 	type_bebas.setLetterSpacing(1.037);
@@ -122,6 +103,8 @@ void testApp::setup(){
 }
 
 //--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 void testApp::update(){
     
     int x = 10;
@@ -135,19 +118,20 @@ void testApp::update(){
         newButton.set(x, ofGetHeight() - guiHeight - buttHeight, guiWidth, buttHeight);
     }
     
-    //get the currentTime
+    //if there are timelines, get the current time string and remove milliseconds
     if(timelines.size() > 0)
     {
-        currentTime = floorf(timelines[currentTimelineIndex]->getCurrentTime() * 100) / 100;
         currentTimeString = timelines[currentTimelineIndex]->getCurrentTimecode();
-        
+        currentTimeString.erase(currentTimeString.end() - 4, currentTimeString.end());   //remove millis from string
         
     }
     
+    //save the current state of things every loop
     saveCurrentTime();
 }
 
-
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::draw(){
 	
@@ -160,7 +144,7 @@ void testApp::draw(){
         ofPushMatrix();
         
             //translate to the center of the screen
-            ofTranslate(ofGetWidth()*.5, ofGetHeight()*.66, 40);
+            ofTranslate(ofGetWidth()*.5, ofGetHeight() - boxSize - 10);
             
             ofPushMatrix();
                 ofTranslate(-boxSize*2.5, 0);
@@ -220,7 +204,7 @@ void testApp::draw(){
     
     
     //draw the pagename
-    ofSetColor(0);
+    ofSetColor(0, 85);
     
     stringstream displayString;
     if(timelines.size() > 0)
@@ -231,7 +215,7 @@ void testApp::draw(){
     int stringW = type_bebas.stringWidth(displayString.str());
     int stringH = type_bebas.stringHeight(displayString.str());
     type_bebas.drawString(displayString.str(), ofGetWidth()/2-stringW/2,
-                          ofGetHeight()/2-stringH/2);
+                          timelines[currentTimelineIndex]->getBottomLeft().y+ stringH);
 
     ofFill();
     ofSetColor(255, 0, 0);
@@ -239,6 +223,8 @@ void testApp::draw(){
  
 }
 
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::setupNewTimeline(){
   	ofLogVerbose() << "setting up new timeline";
@@ -281,51 +267,32 @@ void testApp::setupNewTimeline(){
     ofLogVerbose() << "setup new timeline complete, number of timelines: " << timelines.size();
 }
 
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::guiEvent(ofxUIEventArgs &e){
-    
-    if(e.getName() == "Recipe")
-    {
-        ofxUITextInput *textinput = (ofxUITextInput *) e.widget;
-        fileName = textinput->getTextString();
-        if(fileName != "")
-        {
-            ofLog() << "text input: " << fileName;
-            setupNewTimeline();
-        }
-    }
     
     //if the event is a button:
     if(e.getKind() == OFX_UI_WIDGET_BUTTON)
     {
+        
+        
         currentTimelineIndex = buttonGui->getWidget(e.getName())->getID();
         showOneTimeline(currentTimelineIndex);
         currentTimelineName = e.getName();
         ofLogVerbose() << endl << "******************************" << endl <<
-        "gui button clicked: " << currentTimelineName << " | ID: " << currentTimelineIndex << endl ;
+        "gui button clicked: " << currentTimelineName << " | ID: " << currentTimelineIndex << endl;
         
     }
     
-    if(e.getName() == "Go To Start")
-    {
-        ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
-		if(toggle->getValue())
-        {
-            for(int i = 0; i < timelines.size(); i++)
-            {
-                timelines[i]->setDurationInSeconds(24);
-            }
-        }
-        else
-        {
-            for(int i = 0; i < timelines.size(); i++)
-            {
-                timelines[i]->setDurationInSeconds(24*60*60);
-            }
-        }
-    }
+    
+    
+    
 }
 
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::showOneTimeline(int timelineNum){
     //hide all other timelines
@@ -342,6 +309,8 @@ void testApp::showOneTimeline(int timelineNum){
 }
 
 //--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 void testApp::saveTimelines(){
     
     for(int i = 0; i < timelines.size(); i++)
@@ -352,6 +321,8 @@ void testApp::saveTimelines(){
     ofGetSystemTime();
 }
 
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::saveCurrentTime(){
     int currentTime = timelines[currentTimelineIndex]->getCurrentTime();
@@ -368,6 +339,8 @@ void testApp::saveCurrentTime(){
 }
 
 //--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 void testApp::loadCurrentTime(){
     
     currentTimelineIndex = timeXML.getValue("timelineIndex", 0);
@@ -382,10 +355,37 @@ void testApp::loadCurrentTime(){
 }
 
 //--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 void testApp::exit(){
     delete gui2;
+    saveCurrentTime();
 }
 
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+void testApp::mousePressed(int x, int y, int _button){
+    ofPoint mousePoint;
+    mousePoint.set(x, y);
+    if(newButton.inside(mousePoint))
+    {
+        ofLog() << "newButton Pressed";
+        //bShowText = !bShowText;
+        if(timelines[currentTimelineIndex]->getIsPlaying())
+        {
+            timelines[currentTimelineIndex]->stop();
+        }
+        else
+        {
+            timelines[currentTimelineIndex]->play();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
     
@@ -404,25 +404,6 @@ void testApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void testApp::mousePressed(int x, int y, int _button){
-    ofPoint mousePoint;
-    mousePoint.set(x, y);
-    if(newButton.inside(mousePoint))
-    {
-        ofLog() << "newButton Pressed";
-        //bShowText = !bShowText;
-        if(timelines[currentTimelineIndex]->getIsPlaying())
-        {
-            timelines[currentTimelineIndex]->stop();
-        }
-        else timelines[currentTimelineIndex]->play();
-        
-        
-    }
 
 }
 

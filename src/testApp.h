@@ -53,14 +53,19 @@ class testApp : public ofBaseApp{
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
     void exit();
-    void guiEvent(ofxUIEventArgs &e);
     
+    
+    void guiEvent(ofxUIEventArgs &e);
     void setupNewTimeline();
     void showOneTimeline(int timelineNum);
     void saveTimelines();
     void saveCurrentTime();
     void loadCurrentTime();
-		
+    
+    void runPCA();
+	
+	
+    
 	vector <ofxTimeline*> timelines;
     int currentTimelineIndex;
     string currentTimelineName;
@@ -74,7 +79,6 @@ class testApp : public ofBaseApp{
     ofRectangle newButton;
     ofTrueTypeFont type_bebas;
     
-    float currentTime;
     string currentTimeString;
     
     ofxXmlSettings timeXML;
