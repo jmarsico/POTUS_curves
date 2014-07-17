@@ -96,8 +96,13 @@ void testApp::setup(){
     }
     
     //setup XML for last time and currentTimelineIndex
-    if(timeXML.load("lastTime.xml")) ofLog() << "XML loaded successfully";
-    else ofLog() << "XML did not load, check data/ folder";
+    if(timeXML.load("lastTime.xml")) ofLog() << "currentsettings XML loaded successfully";
+    else ofLog() << "currentsettings XML did not load, check data/ folder";
+
+    if(timeXML.save("lastTime.xml"))
+    {
+        ofLog() << "SETUP: saved correctly!";
+    } else ofLog() << "SETUP: FAILED TO SAVE";
     
     loadCurrentTime();
 }
@@ -306,6 +311,7 @@ void testApp::showOneTimeline(int timelineNum){
     }
     //show and draw current timeline
     timelines[timelineNum]->show();
+
 }
 
 //--------------------------------------------------------------
@@ -332,9 +338,13 @@ void testApp::saveCurrentTime(){
     timeXML.setValue("timelineIndex", currentTimelineIndex);
     timeXML.setValue("isPlaying", timelines[currentTimelineIndex]->getIsPlaying());
     timeXML.setValue("name", currentTimelineName);
-    if(!timeXML.save("lastTime.xml"))
+    bool bSaved = timeXML.saveFile();
+    if(false == bSaved)
     {
-       ofLogVerbose() << "failing to save current settings";
+       //ofLogVerbose() << "JM: failing to save current settings";
+    } else if(true == bSaved)
+    {
+        ofLogVerbose() << "JM: success saved current settings";
     }
 }
 
@@ -342,7 +352,7 @@ void testApp::saveCurrentTime(){
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::loadCurrentTime(){
-    
+    ofLogVerbose() << "JM: loading currentTime";
     currentTimelineIndex = timeXML.getValue("timelineIndex", 0);
     currentTimelineName = timeXML.getValue("name", "");
     showOneTimeline(currentTimelineIndex);
@@ -352,6 +362,8 @@ void testApp::loadCurrentTime(){
     {
         timelines[currentTimelineIndex]->play();
     }
+
+    ofLogVerbose() << "JM: success:  currentTimeline: " << currentTimelineIndex <<  "currentTimelineName: " << currentTimelineName;
 }
 
 //--------------------------------------------------------------
