@@ -105,8 +105,10 @@ void testApp::setup(){
     } else ofLog() << "SETUP: FAILED TO SAVE";
 
 
+
     //setup the PCA
     pca = new PCA9685(1);
+
     
     loadCurrentTime();
 }
@@ -349,6 +351,8 @@ void testApp::saveCurrentTime(){
     bool bSaved = timeXML.saveFile();
     if(false == bSaved)
     {
+       //ofLogVerbose() << "JM: failing to save current settings";
+    } 
        //ofLogVerbose() << "JM: failing to save current settings";
     } else if(true == bSaved)
     {
