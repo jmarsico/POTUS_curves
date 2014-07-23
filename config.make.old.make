@@ -8,7 +8,8 @@
 #   The location of your root openFrameworks installation
 #       (default) OF_ROOT = ../../.. 
 ################################################################################
-# OF_ROOT = ../../..
+OF_ROOT = ../../..
+CROSS_ROOT = /opt/raspberrypi/root
 
 ################################################################################
 # App Name
@@ -27,7 +28,7 @@
 #       (default) PROJECT_ROOT = . (this directory)
 #    
 ################################################################################
-# PROJECT_ROOT = .
+PROJECT_ROOT = .
 
 ################################################################################
 # PROJECT SPECIFIC CHECKS
@@ -88,11 +89,26 @@
 # add a runtime path to search for those shared libraries, since they aren't 
 # incorporated directly into the final executable application binary.
 ################################################################################
-WIRINGPI_DIR = $(PROJECT_ROOT)/addons/ofxWiringPi/libs/wiringPi
-WIRING_PI_LIB_DIR = $(WIRINGPI_DIR)/libs
-WIRING_PI_LIB = $(WIRING_PI_LIB_DIR)/libwiringPi.a
+#WIRINGPI_DIR = $(OF_ROOT)/addons/ofxWiringPi
+#WIRING_PI_LIB_DIR = $(WIRINGPI_DIR)/lib
+#WIRING_PI_LIB = $(WIRING_PI_LIB_DIR)/libwiringPi.a
 
-PROJECT_LDFLAGS=-Wl,-rpath=./libs -L$(WIRING_PI_LIB_DIR) $(WIRING_PI_LIB)
+#PROJECT_LDFLAGS=-Wl,-rpath=./lib -L$(WIRING_PI_LIB_DIR) $(WIRING_PI_LIB) $(CROSS_ROOT)/usr/local/lib 
+#PROJECT_LDFLAGS=-I$/opt/raspberrypi/root/usr/local/include
+#DEBUG  = -g -O0
+DEBUG   = -O3
+CC      = gcc
+INCLUDE = -I/opt/raspberrypi/root/usr/local/include
+PROJECT_CFLAGS  = $(DEBUG) -Wall $(INCLUDE) -Winline -pipe
+
+PROJECT_LDFLAGS = -L/opt/raspberrypi/root/usr/local/lib -L/opt/raspberrypi/root/usr/local/lib/wiringPi/wiringPi
+PROJECT_LDLIBS = -lwiringPi -lwiringPiDev -lpthread -lm
+ 
+
+
+#PROJECT_LDFLAGS=-L$(CROSS_ROOT)/usr/local/lib/wiringPi/wiringPi
+#LIBS = $(CROSS_ROOT) -lwiringPi
+#
 
 ################################################################################
 # PROJECT DEFINES
@@ -120,8 +136,9 @@ PROJECT_LDFLAGS=-Wl,-rpath=./libs -L$(WIRING_PI_LIB_DIR) $(WIRING_PI_LIB)
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-WIRING_PI_INCLUDE_DIR = $(WIRINGPI_DIR)/include
-PROJECT_CFLAGS = -I$(WIRING_PI_INCLUDE_DIR)
+#WIRING_PI_INCLUDE_DIR = $(WIRINGPI_DIR)
+#PROJECT_CFLAGS = -I$(WIRING_PI_INCLUDE_DIR)
+#PROJECT_CFLAGS=-I$(CROSS_ROOT)/usr/local/include
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS

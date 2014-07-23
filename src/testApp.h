@@ -35,6 +35,8 @@
 #include "ofxTimeline.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
+#include "PCA9685.h"
+
 
 class testApp : public ofBaseApp{
 
@@ -82,6 +84,10 @@ class testApp : public ofBaseApp{
     string currentTimeString;
     
     ofxXmlSettings timeXML;
+
+    PCA9685* pca;
+
+    int DB, B, R, DR, IR;
     
     
     

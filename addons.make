@@ -6,3 +6,4 @@ ofxTimeline_small
 ofxTween
 ofxXmlSettings
 ofxUI_small
+ofxWiringPi

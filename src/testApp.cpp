@@ -96,8 +96,17 @@ void testApp::setup(){
     }
     
     //setup XML for last time and currentTimelineIndex
-    if(timeXML.load("lastTime.xml")) ofLog() << "XML loaded successfully";
-    else ofLog() << "XML did not load, check data/ folder";
+    if(timeXML.load("lastTime.xml")) ofLog() << "currentsettings XML loaded successfully";
+    else ofLog() << "currentsettings XML did not load, check data/ folder";
+
+    if(timeXML.save("lastTime.xml"))
+    {
+        ofLog() << "SETUP: saved correctly!";
+    } else ofLog() << "SETUP: FAILED TO SAVE";
+
+
+    //setup the PCA
+    pca = new PCA9685(1);
     
     loadCurrentTime();
 }
@@ -125,6 +134,14 @@ void testApp::update(){
         currentTimeString.erase(currentTimeString.end() - 4, currentTimeString.end());   //remove millis from string
         
     }
+
+    //get the values from timeline
+    DB = timelines[currentTimelineIndex]->getValue("Deep_Blue");
+    B = timelines[currentTimelineIndex]->getValue("Blue" );
+    R = timelines[currentTimelineIndex]->getValue("Red");
+    DR = timelines[currentTimelineIndex]->getValue("Deep_Red");
+    IR = timelines[currentTimelineIndex]->getValue("Infra_Red");
+
     
     //save the current state of things every loop
     saveCurrentTime();
@@ -149,7 +166,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*2.5, 0);
                 ofFill();
-                ofSetColor(9, 21, 110, timelines[currentTimelineIndex]->getValue("Deep_Blue"));
+                ofSetColor(9, 21, 110, DB);
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -159,7 +176,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*1.5, 0);
                 ofFill();
-                ofSetColor(28, 45, 170, timelines[currentTimelineIndex]->getValue("Blue" ));
+                ofSetColor(28, 45, 170, B);
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -169,7 +186,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(-boxSize*0.5, 0);
                 ofFill();
-                ofSetColor(241, 10, 26, timelines[currentTimelineIndex]->getValue("Red"));
+                ofSetColor(241, 10, 26, R);
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -179,7 +196,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*0.5, 0);
                 ofFill();
-                ofSetColor(151, 0, 38, timelines[currentTimelineIndex]->getValue("Deep_Red"));
+                ofSetColor(151, 0, 38, DR);
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -189,7 +206,7 @@ void testApp::draw(){
             ofPushMatrix();
                 ofTranslate(boxSize*1.5, 0);
                 ofFill();
-                ofSetColor(100, 15, 21, timelines[currentTimelineIndex]->getValue("Infra_Red"));
+                ofSetColor(100, 15, 21, IR);
                 ofRect(0, 0, boxSize,boxSize);
                 ofNoFill();
                 ofSetColor(200);
@@ -284,11 +301,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
         ofLogVerbose() << endl << "******************************" << endl <<
         "gui button clicked: " << currentTimelineName << " | ID: " << currentTimelineIndex << endl;
         
-    }
-    
-    
-    
-    
+    }   
 }
 
 //--------------------------------------------------------------
@@ -306,6 +319,7 @@ void testApp::showOneTimeline(int timelineNum){
     }
     //show and draw current timeline
     timelines[timelineNum]->show();
+
 }
 
 //--------------------------------------------------------------
@@ -332,9 +346,13 @@ void testApp::saveCurrentTime(){
     timeXML.setValue("timelineIndex", currentTimelineIndex);
     timeXML.setValue("isPlaying", timelines[currentTimelineIndex]->getIsPlaying());
     timeXML.setValue("name", currentTimelineName);
-    if(!timeXML.save("lastTime.xml"))
+    bool bSaved = timeXML.saveFile();
+    if(false == bSaved)
     {
-       ofLogVerbose() << "failing to save current settings";
+       //ofLogVerbose() << "JM: failing to save current settings";
+    } else if(true == bSaved)
+    {
+        ofLogVerbose() << "JM: success saved current settings";
     }
 }
 
@@ -342,7 +360,7 @@ void testApp::saveCurrentTime(){
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::loadCurrentTime(){
-    
+    ofLogVerbose() << "JM: loading currentTime";
     currentTimelineIndex = timeXML.getValue("timelineIndex", 0);
     currentTimelineName = timeXML.getValue("name", "");
     showOneTimeline(currentTimelineIndex);
@@ -352,6 +370,8 @@ void testApp::loadCurrentTime(){
     {
         timelines[currentTimelineIndex]->play();
     }
+
+    ofLogVerbose() << "JM: success:  currentTimeline: " << currentTimelineIndex <<  "currentTimelineName: " << currentTimelineName;
 }
 
 //--------------------------------------------------------------
@@ -382,6 +402,18 @@ void testApp::mousePressed(int x, int y, int _button){
             timelines[currentTimelineIndex]->play();
         }
     }
+}
+
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+//--------------------------------------------------------------
+void testApp::runPCA(){
+    //set DEEP BLUE
+    pca->setLED(0, DB);
+    pca->setLED(1, B);
+    pca->setLED(2, R);
+    pca->setLED(3, DR);
+    pca->setLED(4, IR);
 }
 
 //--------------------------------------------------------------
