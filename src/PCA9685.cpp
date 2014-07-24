@@ -14,7 +14,7 @@ PCA9685::PCA9685(int _numBoards)
         hexAddr = "0x" + ofToString(addr);
         int hexAddrToInt = ofHexToInt(hexAddr);
 
-		ofLog() << "creating new board " << "hex: " << hexAddr << " int: " << hexAddrToInt;
+		ofLog() << "PCA9685: creating new board " << "hex: " << hexAddr << " int: " << hexAddrToInt;
 		pwm[i] = new PWM(hexAddrToInt, true);
 		pwm[i] -> setPWMFreq(6000);
 

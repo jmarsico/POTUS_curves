@@ -7,14 +7,14 @@ PWM::PWM(int address,bool debug)
     fd = wiringPiI2CSetup(Address);
     Debug = debug;
     if(Debug)
-            printf("Reseting PCA9685\n");
+            printf("PWMLIB: Reseting PCA9685\n");
     wiringPiI2CWriteReg8(fd, MODE1, 0x00);
     if(fd > -1)
     {
-        ofLog() << "New Board created! Address/fd = " << Address << "/" << fd;
+        ofLog() << "PWMLIB: New Board created! Address/fd = " << Address << "/" << fd;
     }
-
-}
+ 
+}  
 
 void PWM::setPWMFreq(int freq)
 {
@@ -49,5 +49,7 @@ void PWM::setPWM(int channel, int on, int off)
     wiringPiI2CWriteReg8(fd, LED0_ON_H+4*channel, on >> 8);
     wiringPiI2CWriteReg8(fd, LED0_OFF_L+4*channel, off & 0xFF);
     wiringPiI2CWriteReg8(fd, LED0_OFF_H+4*channel, off >> 8);
+
+    ofLog() << "PWMLIB: channel: " << channel << " on/off: " << on << "/" << off ;
                         
 }

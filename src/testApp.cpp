@@ -147,6 +147,7 @@ void testApp::update(){
     
     //save the current state of things every loop
     saveCurrentTime();
+    runPCA();
 }
 
 //--------------------------------------------------------------
@@ -349,14 +350,9 @@ void testApp::saveCurrentTime(){
     timeXML.setValue("isPlaying", timelines[currentTimelineIndex]->getIsPlaying());
     timeXML.setValue("name", currentTimelineName);
     bool bSaved = timeXML.saveFile();
-    if(false == bSaved)
+    if(true == bSaved)
     {
-       //ofLogVerbose() << "JM: failing to save current settings";
-    } 
-       //ofLogVerbose() << "JM: failing to save current settings";
-    } else if(true == bSaved)
-    {
-        ofLogVerbose() << "JM: success saved current settings";
+        //ofLogVerbose() << "JM: success saved current settings";
     }
 }
 
@@ -406,18 +402,20 @@ void testApp::mousePressed(int x, int y, int _button){
             timelines[currentTimelineIndex]->play();
         }
     }
-}
-
+} 
+  
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 //--------------------------------------------------------------
 void testApp::runPCA(){
     //set DEEP BLUE
-    pca->setLED(0, DB);
-    pca->setLED(1, B);
-    pca->setLED(2, R);
-    pca->setLED(3, DR);
-    pca->setLED(4, IR);
+
+
+    pca->setLED(0, ofMap(DB, 0, 255, 0, 4095));
+    pca->setLED(1, ofMap(B, 0, 255, 0, 4095));
+    pca->setLED(2, ofMap(R, 0, 255, 0, 4095));
+    pca->setLED(3, ofMap(DR, 0, 255, 0, 4095));
+    pca->setLED(4, ofMap(IR, 0, 255, 0, 4095));
 }
 
 //--------------------------------------------------------------
